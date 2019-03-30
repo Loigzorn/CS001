@@ -4,10 +4,12 @@ import de.karlsruhe.hhs.Reader.Reader;
 
 public class CubicSplines {
 
-    private static String FILEPATH = "C:/Users/Lukas/IdeaProjects/CS001/src/Debug/Data/Measurements.Points.csv";
+    private static String FILEPATH = "./src/Debug/Data/Measurements/Points.csv";
 
     public static void main(String[] args) {
-        Reader reader = new Reader(FILEPATH);
-        reader.readFile();
+        Reader reader = new Reader();
+        var entries = reader.readFile(FILEPATH);
+        var convertedEntries = reader.convert(entries);
+        System.out.println(convertedEntries);
     }
 }
