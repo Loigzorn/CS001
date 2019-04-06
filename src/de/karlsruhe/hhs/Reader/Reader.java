@@ -33,8 +33,8 @@ public class Reader {
         return entries;
     }
 
-    public List<Point2D> convert(List<String> entries) {
-        List<Point2D> convertedEntries = new LinkedList<>();
+    public List<Point2D.Double> convert(List<String> entries) {
+        List<Point2D.Double> convertedEntries = new LinkedList<>();
         for (var entry : entries) {
             var validationOfSyntax = entry.contains(";");
             if(!validationOfSyntax) {
