@@ -22,7 +22,7 @@ public class Program {
 
     private void calculateFunctions() {
         var lastIndexToIterateTo = determineLastIndexToIterateTo();
-        for (int i = 0; i < lastIndexToIterateTo; i = i + 3) {
+        for (int i = 0; i <= lastIndexToIterateTo; i = i + 3) {
             var entries = getEntries(i);
             var functions = differentiation(entries);
             gaussianElimination(functions);
@@ -55,6 +55,9 @@ public class Program {
 
     private List<Point2D> getEntries(int from) {
         var to = from + 3;
+        if (to > sizeOfDataEntries) {
+            to = sizeOfDataEntries;
+        }
         List<Point2D> entries = new LinkedList<>();
         for(int i = from; i < to; i ++) {
             entries.add(dataEntries.get(i));
@@ -63,13 +66,13 @@ public class Program {
     }
 
     private int determineLastIndexToIterateTo() {
-        var isFactorOfThree_MinusOne = sizeOfDataEntries - 1 % 3 == 0;
-        var isFactorOfThree_MinusTwo = sizeOfDataEntries - 2 % 3 == 0;
+        var isFactorOfThree_MinusOne = (sizeOfDataEntries - 1) % 3 == 0;
+        var isFactorOfThree_MinusTwo = (sizeOfDataEntries - 2) % 3 == 0;
         var lastIndexToIterateTo = sizeOfDataEntries;
         if (isFactorOfThree_MinusOne) {
-            lastIndexToIterateTo -= 2;
-        } else if (isFactorOfThree_MinusTwo) {
             lastIndexToIterateTo -= 1;
+        } else if (isFactorOfThree_MinusTwo) {
+            lastIndexToIterateTo -= 2;
         }
         return lastIndexToIterateTo;
     }

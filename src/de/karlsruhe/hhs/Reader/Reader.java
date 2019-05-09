@@ -44,18 +44,25 @@ public class Reader {
             var coordinate = entry.split(";");
             var validationOfCoordinate = coordinate.length != 2;
             if(validationOfCoordinate) {
-                System.out.println( "Skipped element: " + entry);
+                System.out.println("Skipped element: " + entry);
                 continue;
             }
             var firstPart = coordinate[0].substring(1);
-            var secondPart = coordinate[1].substring(0,1);
+            var secondPart = coordinate[1].substring(0,coordinate[1].length() - 1);
+            var regExNumber = "-?\\d+";
+            var validationFirstPart = !firstPart.matches(regExNumber);
+            var validationSecondPart = !secondPart.matches(regExNumber);
+            if(validationFirstPart || validationSecondPart) {
+                System.out.println("Skipped element: " + entry);
+                continue;
+            }
             var x = Double.parseDouble(firstPart);
             var y = Double.parseDouble(secondPart);
             var point = new Point2D.Double(x,y);
             convertedEntries.add(point);
         }
         if (convertedEntries.size() != entries.size()) {
-            System.out.println("Conversion partly failed!");
+            System.out.println((char)27 + "[31m" + "Conversion partly failed!" + (char)27 + "[0m");
         }
         return convertedEntries;
     }
