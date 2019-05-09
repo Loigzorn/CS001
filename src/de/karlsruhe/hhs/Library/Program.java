@@ -1,5 +1,6 @@
 package de.karlsruhe.hhs.Library;
 
+import de.karlsruhe.hhs.Plotter.Plotter;
 import de.karlsruhe.hhs.Reader.Reader;
 
 import java.awt.geom.Point2D;
@@ -17,6 +18,7 @@ public class Program {
     public void startApplication() {
         readFile();
         calculateFunctions();
+        showResults();
 
     }
 
@@ -75,6 +77,10 @@ public class Program {
             lastIndexToIterateTo -= 2;
         }
         return lastIndexToIterateTo;
+    }
+
+    private void showResults() {
+        new Plotter("CubicSpinesPlotter");
     }
 
 }
