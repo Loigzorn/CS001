@@ -1,5 +1,7 @@
 package de.karlsruhe.hhs.Library;
 
+import de.karlsruhe.hhs.GaussianElimination.GaussianElimination;
+import de.karlsruhe.hhs.Library.Helper.LGS;
 import de.karlsruhe.hhs.Plotter.Plotter;
 import de.karlsruhe.hhs.Reader.Reader;
 
@@ -14,20 +16,25 @@ public class Program {
     private static String DATA_POINTS_PATH = "./src/Debug/Data/Measurements/Points.csv";
     private List<Point2D.Double> dataEntries = new LinkedList<>();
     private int sizeOfDataEntries;
+    LGS lgs = new LGS();
 
     public void startApplication() {
         readFile();
         calculateFunctions();
+        //functionFromPoint.createFunction();
         showResults();
 
     }
+
 
     private void calculateFunctions() {
         var lastIndexToIterateTo = determineLastIndexToIterateTo();
         for (int i = 0; i <= lastIndexToIterateTo; i = i + 3) {
             var entries = getEntries(i);
-            var functions = differentiation(entries);
-            gaussianElimination(functions);
+            //var functions = differentiation(entries);
+            var resultLGS = calculateLGS(entries);
+            var result = new GaussianElimination(resultLGS.getValues(), resultLGS.getResults()).primal();
+            var function = createFunction(result);
         }
         if (lastIndexToIterateTo != sizeOfDataEntries) {
             var entries = getEntries(sizeOfDataEntries-3);
@@ -35,6 +42,37 @@ public class Program {
             gaussianElimination(functions);
         }
 
+    }
+
+    private LGS calculateLGS(List<Point2D> points){
+
+        double[][] functions = new double[3][points.size()];
+        double[] result = new double[3];
+        LGS tempLGS = new LGS();
+
+        for(int j = 0; j < points.size(); j++) {
+            double[] tempFunction = new double[3];
+
+            for(int i = tempFunction.length - 1; i >= 0; i--) {
+                tempFunction[2 - i] = (Math.pow(points.get(j).getX(), i));
+            }
+            functions[j] = tempFunction;
+            result[j] = points.get(j).getY();
+        }
+
+        tempLGS.fill(functions, result);
+
+        return tempLGS;
+    }
+
+    private LinkedList<Double> createFunction(double[] results){
+        LinkedList<Double> function = new LinkedList<Double>();
+
+        for(int i = results.length - 1; i >= 0; i--){
+            function.add(results[i]);
+        }
+
+        return function;
     }
 
     private List<Function> differentiation(List<Point2D> threeEntries) {
