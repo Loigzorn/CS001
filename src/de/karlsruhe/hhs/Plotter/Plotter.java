@@ -8,7 +8,6 @@ public class Plotter extends JFrame{
 
     private int width = 700;
     private int height = 700;
-    private Panel graphPanel;
 
     public Plotter(String title){
         super(title);
@@ -36,7 +35,7 @@ public class Plotter extends JFrame{
         var  bottomPanel = new JPanel();
         var mainContainer = this.getContentPane();
         bottomPanel.setBorder(new LineBorder(Color.CYAN, 1));
-        bottomPanel.setLayout(new FlowLayout(0));
+        bottomPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         var button0 = new JButton("Button0");
         var button1 = new JButton("Button1");
         var button2 = new JButton("Button2");
@@ -50,13 +49,13 @@ public class Plotter extends JFrame{
 
     private void createMainPanel() {
         var mainPanel = new JPanel();
-        mainPanel.setLayout(new FlowLayout(2,1,1));
+        mainPanel.setLayout(new FlowLayout(FlowLayout.RIGHT,1,1));
         mainPanel.setBorder(new LineBorder(Color.CYAN, 1));
         mainPanel.setBackground(Color.LIGHT_GRAY);
         var plotterWidth = (int) (width * 0.85);
         var plotterHeight = (int) (height * 0.85);
         var mainDimension = new Dimension(plotterWidth, plotterHeight);
-        graphPanel = new FunctionGraph();
+        Panel graphPanel = new FunctionGraph();
         mainPanel.add(graphPanel).setPreferredSize(mainDimension);
         var optionMenu = createOptionMenu();
         mainPanel.add(optionMenu);
@@ -65,8 +64,9 @@ public class Plotter extends JFrame{
 
     private JPanel createOptionMenu() {
         var optionPanel = new JPanel();
-        optionPanel.setLayout(new GridLayout(6,1,1,1));
+        optionPanel.setLayout(new GridLayout(6,1,20,20));
         optionPanel.setBorder(new LineBorder(Color.CYAN, 1));
+        optionPanel.setBackground(Color.LIGHT_GRAY);
         var button4 = new JButton("Button4");
         var button5 = new JButton("Button5");
         var button6 = new JButton("Button6");

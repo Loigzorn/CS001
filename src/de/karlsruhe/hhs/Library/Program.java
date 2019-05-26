@@ -16,16 +16,13 @@ public class Program {
     private static String DATA_POINTS_PATH = "./src/Debug/Data/Measurements/Points.csv";
     private List<Point2D.Double> dataEntries = new LinkedList<>();
     private int sizeOfDataEntries;
-    LGS lgs = new LGS();
 
     public void startApplication() {
         readFile();
         calculateFunctions();
-        //functionFromPoint.createFunction();
         showResults();
 
     }
-
 
     private void calculateFunctions() {
         var lastIndexToIterateTo = determineLastIndexToIterateTo();
