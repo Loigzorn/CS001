@@ -1,5 +1,6 @@
 package de.karlsruhe.hhs.Reader;
 
+import javax.swing.*;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -10,10 +11,13 @@ import java.util.List;
 
 public class Reader {
 
-    public Reader() {
+    private String filepath;
+
+    public Reader(String filepath) {
+        this.filepath = filepath;
     }
 
-    public List<String> readFile(String filepath) {
+    public List<String> readFile() {
 
         String line;
         String cvsSplitBy = ",";
@@ -28,7 +32,7 @@ public class Reader {
 
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.getCause() + e.getMessage());
         }
         return entries;
     }
@@ -38,13 +42,15 @@ public class Reader {
         for (var entry : entries) {
             var validationOfSyntax = entry.contains(";");
             if(!validationOfSyntax) {
-                System.out.println( "Skipped element: " + entry);
+                JOptionPane.showMessageDialog(null, "Skipped element: " + entry);
+                //System.out.println( "Skipped element: " + entry);
                 continue;
             }
             var coordinate = entry.split(";");
             var validationOfCoordinate = coordinate.length != 2;
             if(validationOfCoordinate) {
-                System.out.println("Skipped element: " + entry);
+                JOptionPane.showMessageDialog(null, "Skipped element: " + entry);
+                //System.out.println("Skipped element: " + entry);
                 continue;
             }
             var firstPart = coordinate[0].substring(1);
@@ -53,7 +59,8 @@ public class Reader {
             var validationFirstPart = !firstPart.matches(regExNumber);
             var validationSecondPart = !secondPart.matches(regExNumber);
             if(validationFirstPart || validationSecondPart) {
-                System.out.println("Skipped element: " + entry);
+                JOptionPane.showMessageDialog(null, "Skipped element: " + entry);
+                //System.out.println("Skipped element: " + entry);
                 continue;
             }
             var x = Double.parseDouble(firstPart);
@@ -62,9 +69,9 @@ public class Reader {
             convertedEntries.add(point);
         }
         if (convertedEntries.size() != entries.size()) {
-            System.out.println((char)27 + "[31m" + "Conversion partly failed!" + (char)27 + "[0m");
+            JOptionPane.showMessageDialog(null, "Conversion partly failed!");
+            //System.out.println((char)27 + "[31m" + "Conversion partly failed!" + (char)27 + "[0m");
         }
         return convertedEntries;
     }
-
 }

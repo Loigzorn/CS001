@@ -11,10 +11,11 @@ public class FunctionGraph extends Panel implements MouseWheelListener , MouseLi
 
     private final double CONSTANTMARGIN = 0.025;
     private Point2D.Double center;
-    private final int INDENT = 2;
-    private List<Point2D.Double> dateEntries;
+    private final int INDENTFORFUNCTION = 1;
+    private final int INDENTFORPOINTS = 2;
+    private List<Point2D.Double> dataEntries;
     private List<LinkedList<Double>> functionsPerSequence;
-    private boolean areNewDataEntriesProvided;
+    private List<LinkedList<Point2D>> pointsCorrespondingToSequence;
 
     //Zoom
     private double zoomFactor = 1;
@@ -29,10 +30,10 @@ public class FunctionGraph extends Panel implements MouseWheelListener , MouseLi
     private Point startPoint;
     private double fontSize = 17;
 
-    public FunctionGraph(boolean areNewDataEntriesProvided, List<Point2D.Double> dataEntries, List<LinkedList<Double>> functionsPerSequence) {
-        this.areNewDataEntriesProvided = areNewDataEntriesProvided;
-        this.dateEntries = dataEntries;
+    public FunctionGraph(List<Point2D.Double> dataEntries, List<LinkedList<Double>> functionsPerSequence, List<LinkedList<Point2D>> pointsCorrespondingToSequence) {
+        this.dataEntries = dataEntries;
         this.functionsPerSequence = functionsPerSequence;
+        this.pointsCorrespondingToSequence = pointsCorrespondingToSequence;
         addMouseWheelListener(this);
         addMouseMotionListener(this);
         addMouseListener(this);
@@ -80,18 +81,14 @@ public class FunctionGraph extends Panel implements MouseWheelListener , MouseLi
     }
 
     private void drawPoints(Graphics graphics) {
-        if(!areNewDataEntriesProvided) {
-            return;
-        }
-        for (var point : dateEntries) {
-            var roundedX = (int) Math.round(center.x + point.x) - (INDENT /2);
-            var roundedY = (int) Math.round(center.y - point.y) - (INDENT/2);
+        graphics.setColor(Color.BLUE);
+        for (var point : dataEntries) {
+            var roundedX = (int) (Math.round(center.x + point.x) - (INDENTFORPOINTS /2));
+            var roundedY = (int) (Math.round(center.y - point.y) - (INDENTFORPOINTS /2));
             var xForText = roundedX - 5;
             var yForText = roundedY - 5;
 
-            graphics.setColor(Color.BLUE);
-
-            graphics.fillOval(roundedX, roundedY, INDENT, INDENT);
+            graphics.fillOval(roundedX, roundedY, INDENTFORPOINTS, INDENTFORPOINTS);
             var font = new Font("Default", Font.CENTER_BASELINE, (int)fontSize);
             graphics.setFont(font);
             var description = String.format("(%s, %s)", point.x, point.y);
@@ -100,11 +97,21 @@ public class FunctionGraph extends Panel implements MouseWheelListener , MouseLi
     }
 
     private void drawFunction(Graphics graphics) {
-        if(!areNewDataEntriesProvided) {
-            return;
-
+        graphics.setColor(Color.RED);
+        if (functionsPerSequence.size() != pointsCorrespondingToSequence.size()) {
+            System.out.println("Mistake");
         }
-        //TODO
+        for (var sequence : functionsPerSequence) {
+            var indexer = functionsPerSequence.indexOf(sequence);
+            var from = pointsCorrespondingToSequence.get(indexer).get(0).getX();
+            var to = pointsCorrespondingToSequence.get(indexer).get(2).getX();
+            for( var x = from; x <= to; x+= 0.01) {
+                var fullY = sequence.get(0) * Math.pow(x,2) + sequence.get(1) * x + sequence.get(2);
+                var yToPaint = (int) (Math.round(center.y + fullY) - (INDENTFORFUNCTION/2));
+                var xToPaint = (int) (Math.round(center.x + x) - (INDENTFORFUNCTION /2));
+                graphics.drawOval(xToPaint, yToPaint, INDENTFORFUNCTION,INDENTFORFUNCTION);
+            }
+        }
     }
 
     private void updateZoom(Graphics graphics) {
