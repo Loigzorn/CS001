@@ -1,8 +1,14 @@
 package de.karlsruhe.hhs.Library;
 
+import de.karlsruhe.hhs.Calculation.Calculations;
+import de.karlsruhe.hhs.Calculation.GaussianElimination.GaussianElimination;
+import de.karlsruhe.hhs.Library.Helpers.LGS;
+import de.karlsruhe.hhs.Plotter.Plotter;
 import de.karlsruhe.hhs.Reader.Reader;
 
+import javax.swing.*;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,27 +16,80 @@ import java.util.function.Function;
 
 public class Program {
 
-    private static String DATA_POINTS_PATH = "./src/Debug/Data/Measurements/Points.csv";
+    private String dataPointsPath = "./src/Debug/Data/Measurements/Points.csv";
     private List<Point2D.Double> dataEntries = new LinkedList<>();
     private int sizeOfDataEntries;
+    private List<LinkedList<Double>> functionsPerSequence = new LinkedList<>();
+    private List<LinkedList<Point2D>> pointsCorrespondingToSequence = new LinkedList<>();
 
     public void startApplication() {
         readFile();
         calculateFunctions();
+        startUserInterface();
+    }
 
+    private void readFile() {
+        Reader reader = new Reader(dataPointsPath);
+        var dataPoints = reader.readFile();
+        dataEntries = reader.convert(dataPoints);
+        //A::B refers to method B in class A.
+        //in this case getX is a inherited method of Point2D from the class Point.
+        dataEntries.sort(Comparator.comparing(Point2D::getX));
+        sizeOfDataEntries = dataEntries.size();
     }
 
     private void calculateFunctions() {
+        var startGradient = Double.parseDouble(JOptionPane.showInputDialog("Input a start Gradient"));
+        var endGradient = Double.parseDouble(JOptionPane.showInputDialog("Input a end Gradient"));
         var lastIndexToIterateTo = determineLastIndexToIterateTo();
-        for (int i = 0; i <= lastIndexToIterateTo; i = i + 3) {
+        var calc = new Calculations();
+        List<LinkedList<Double>> linearFunctions = new ArrayList<LinkedList<Double>>();
+        List<Double> gradients = new ArrayList<Double>();
+        List<Double> mediants = new ArrayList<Double>();
+        List<Double> activeGradients = new ArrayList<Double>();
+
+        for(int i = 0; i < lastIndexToIterateTo - 1; i = i + 1){
             var entries = getEntries(i);
-            var functions = differentiation(entries);
-            gaussianElimination(functions);
+            var linearFunction = calc.calculateLinearFunction(entries);
+            linearFunctions.add(linearFunction);
         }
+        if(lastIndexToIterateTo != sizeOfDataEntries){
+            var entries = getEntries(sizeOfDataEntries-2);
+            var linearFunction = calc.calculateLinearFunction(entries);
+            linearFunctions.add(linearFunction);
+        }
+
+        gradients.add(startGradient);
+        for(int i = 0; i < linearFunctions.size(); i++){
+            gradients.add(linearFunctions.get(i).get(1));
+        }
+        gradients.add(endGradient);
+
+        mediants.add(gradients.get(0));
+        for(int i = 0; i < gradients.size() - 1; i++){
+            mediants.add((gradients.get(i) + gradients.get(i + 1)) / 2);
+        }
+        mediants.remove(mediants.size() - 1);
+        mediants.remove(mediants.size() - 1);
+        mediants.add(endGradient);
+
+        for (int i = 0; i < lastIndexToIterateTo - 1; i = i + 1) {
+            activeGradients.add(mediants.get(0));
+            activeGradients.add(mediants.get(1));
+            mediants.remove(0);
+            var entries = getEntries(i);
+            var function = calc.calculateFunctionRounded(entries, activeGradients);
+            pointsCorrespondingToSequence.add(entries);
+            functionsPerSequence.add(function);
+        }
+
         if (lastIndexToIterateTo != sizeOfDataEntries) {
-            var entries = getEntries(sizeOfDataEntries-3);
-            var functions = differentiation(entries);
-            gaussianElimination(functions);
+            activeGradients.add(mediants.get(0));
+            activeGradients.add(mediants.get(1));
+            var entries = getEntries(sizeOfDataEntries-2);
+            var function = calc.calculateFunctionRounded(entries, activeGradients);
+            pointsCorrespondingToSequence.add(entries);
+            functionsPerSequence.add(function);
         }
 
     }
@@ -39,26 +98,16 @@ public class Program {
         return null;
     }
 
-    private void readFile() {
-        Reader reader = new Reader();
-        var entries = reader.readFile(DATA_POINTS_PATH);
-        dataEntries = reader.convert(entries);
-        //A::B refers to method B in class A.
-        //in this case getX is a inherited method of Point2D from the class Point.
-        dataEntries.sort(Comparator.comparing(Point2D::getX));
-        sizeOfDataEntries = dataEntries.size();
-    }
-
     private void gaussianElimination(List<Function> functions) {
         //var gaussenElemination = new GaussianEliminationMaintainer();
     }
 
-    private List<Point2D> getEntries(int from) {
-        var to = from + 3;
+    private LinkedList<Point2D> getEntries(int from) {
+        var to = from + 2;
         if (to > sizeOfDataEntries) {
             to = sizeOfDataEntries;
         }
-        List<Point2D> entries = new LinkedList<>();
+        LinkedList<Point2D> entries = new LinkedList<>();
         for(int i = from; i < to; i ++) {
             entries.add(dataEntries.get(i));
         }
@@ -66,15 +115,18 @@ public class Program {
     }
 
     private int determineLastIndexToIterateTo() {
-        var isFactorOfThree_MinusOne = (sizeOfDataEntries - 1) % 3 == 0;
-        var isFactorOfThree_MinusTwo = (sizeOfDataEntries - 2) % 3 == 0;
-        var lastIndexToIterateTo = sizeOfDataEntries;
-        if (isFactorOfThree_MinusOne) {
-            lastIndexToIterateTo -= 1;
-        } else if (isFactorOfThree_MinusTwo) {
-            lastIndexToIterateTo -= 2;
+        if(sizeOfDataEntries == 0) {
+            return sizeOfDataEntries;
         }
+        var isFactorOfTwo_MinusOne = (sizeOfDataEntries - 1) % 2 == 0;
+        var lastIndexToIterateTo = sizeOfDataEntries;
+        if (isFactorOfTwo_MinusOne)
+            lastIndexToIterateTo -= 1;
         return lastIndexToIterateTo;
+    }
+
+    private void startUserInterface() {
+        new Plotter("CubicSpinesPlotter", dataEntries, functionsPerSequence, pointsCorrespondingToSequence);
     }
 
 }

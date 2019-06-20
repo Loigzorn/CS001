@@ -1,4 +1,4 @@
-package de.karlsruhe.hhs.GaussianElimination;
+package de.karlsruhe.hhs.Calculation.GaussianElimination;
 
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
