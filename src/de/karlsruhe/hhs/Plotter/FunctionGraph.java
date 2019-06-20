@@ -53,11 +53,12 @@ public class FunctionGraph extends Panel implements MouseWheelListener , MouseLi
 
         obtainWindowSize(graphics);
         graphics.setColor(Color.blue);
-        drawPoints(graphics);
         drawFunction(graphics);
+        drawPoints(graphics);
     }
 
     private void obtainWindowSize(Graphics graphics) {
+        var windowFactor = 100000;
         double windowWidth = this.getBounds().width;
         double windowHeight = this.getBounds().height;
 
@@ -67,12 +68,12 @@ public class FunctionGraph extends Panel implements MouseWheelListener , MouseLi
 
         center = new Point2D.Double(halfWidth, halfHeight);
 
-        int marginWidth = (int) (windowWidth * CONSTANTMARGIN);
-        int marginHeight = (int) (windowHeight * CONSTANTMARGIN);
+        int marginWidth = (int) (windowWidth * CONSTANTMARGIN) - windowFactor;
+        int marginHeight = (int) (windowHeight * CONSTANTMARGIN) - windowFactor;
 
-        int toYAxis = (int)windowHeight - marginWidth;
+        int toYAxis = (int)(windowHeight - marginWidth) + windowFactor;
 
-        int toXAxis = (int) windowWidth - marginHeight;
+        int toXAxis = (int) (windowWidth - marginHeight) + windowFactor;
 
         graphics.drawLine(halfWidth, toYAxis, halfWidth, marginWidth);
         graphics.drawString("Y", halfWidth - 20, marginWidth);
@@ -84,12 +85,10 @@ public class FunctionGraph extends Panel implements MouseWheelListener , MouseLi
 
     private void drawPoints(Graphics graphics) {
         for (var point : dataEntries) {
-            var roundedX2 = (int) (Math.round(center.x + point.x) - (INDENTFORPOINTS /2));
-            var roundedY2 = (int) (Math.round(center.y - point.y) - (INDENTFORPOINTS /2));
-            var roundedX = (int) (Math.round(center.x + point.x) - (INDENTFORPOINTS /2));
-            var roundedY = (int) (Math.round(center.y - point.y) - (INDENTFORPOINTS /2));
-            var scaledX = roundedX * 100;
-            var scaledY = roundedY * 100;
+            var roundedX = (int) (Math.round(center.x + point.x * 100) - (INDENTFORPOINTS /2));
+            var roundedY = (int) (Math.round(center.y - point.y * 100) - (INDENTFORPOINTS /2));
+            var scaledX = roundedX;
+            var scaledY = roundedY;
             var xForText = scaledX - 2;
             var yForText = scaledY - 2;
 

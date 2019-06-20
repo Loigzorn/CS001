@@ -1,8 +1,6 @@
 package de.karlsruhe.hhs.Library;
 
 import de.karlsruhe.hhs.Calculation.Calculations;
-import de.karlsruhe.hhs.Calculation.GaussianElimination.GaussianElimination;
-import de.karlsruhe.hhs.Library.Helpers.LGS;
 import de.karlsruhe.hhs.Plotter.Plotter;
 import de.karlsruhe.hhs.Reader.Reader;
 
@@ -12,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Function;
 
 public class Program {
 
@@ -39,9 +36,6 @@ public class Program {
     }
 
     private void calculateFunctions() {
-        getGradientsFromUserInput();
-        var startGradient = Double.parseDouble(JOptionPane.showInputDialog("Input a start Gradient"));
-        var endGradient = Double.parseDouble(JOptionPane.showInputDialog("Input a end Gradient"));
         var lastIndexToIterateTo = determineLastIndexToIterateTo();
         var calc = new Calculations();
         List<LinkedList<Double>> linearFunctions = new ArrayList<LinkedList<Double>>();
@@ -59,7 +53,8 @@ public class Program {
             var linearFunction = calc.calculateLinearFunction(entries);
             linearFunctions.add(linearFunction);
         }
-
+        var startGradient = getGradientFromUserInput("Input a start Gradient");
+        var endGradient = getGradientFromUserInput("Input a end Gradient");
         gradients.add(startGradient);
         for(int i = 0; i < linearFunctions.size(); i++){
             gradients.add(linearFunctions.get(i).get(1));
@@ -95,12 +90,19 @@ public class Program {
 
     }
 
-    private List<Function> differentiation(List<Point2D> threeEntries) {
-        return null;
-    }
+    private double getGradientFromUserInput(String userRequest) {
+        var inputGraient = 0.0;
+        boolean graientValid = false;
+        do {
+            try{
+                inputGraient = Double.parseDouble(JOptionPane.showInputDialog(userRequest));
+            } catch (Exception e) {
+                continue;
+            }
+            graientValid = true;
+        } while (!graientValid);
 
-    private void gaussianElimination(List<Function> functions) {
-        //var gaussenElemination = new GaussianEliminationMaintainer();
+        return inputGraient;
     }
 
     private LinkedList<Point2D> getEntries(int from) {
