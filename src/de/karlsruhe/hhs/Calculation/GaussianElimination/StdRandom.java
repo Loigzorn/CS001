@@ -45,7 +45,7 @@
  *
  ******************************************************************************/
 
-package de.karlsruhe.hhs.GaussianElimination;
+package de.karlsruhe.hhs.Calculation.GaussianElimination;
 //package edu.princeton.cs.algs4;
 
 import java.util.Random;

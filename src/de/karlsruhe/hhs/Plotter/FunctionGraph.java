@@ -1,5 +1,7 @@
 package de.karlsruhe.hhs.Plotter;
 
+import de.karlsruhe.hhs.Calculation.Calculations;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
@@ -81,14 +83,19 @@ public class FunctionGraph extends Panel implements MouseWheelListener , MouseLi
     }
 
     private void drawPoints(Graphics graphics) {
-        graphics.setColor(Color.BLUE);
         for (var point : dataEntries) {
+            var roundedX2 = (int) (Math.round(center.x + point.x) - (INDENTFORPOINTS /2));
+            var roundedY2 = (int) (Math.round(center.y - point.y) - (INDENTFORPOINTS /2));
             var roundedX = (int) (Math.round(center.x + point.x) - (INDENTFORPOINTS /2));
             var roundedY = (int) (Math.round(center.y - point.y) - (INDENTFORPOINTS /2));
-            var xForText = roundedX - 5;
-            var yForText = roundedY - 5;
+            var scaledX = roundedX * 100;
+            var scaledY = roundedY * 100;
+            var xForText = scaledX - 2;
+            var yForText = scaledY - 2;
 
-            graphics.fillOval(roundedX, roundedY, INDENTFORPOINTS, INDENTFORPOINTS);
+            graphics.setColor(Color.BLUE);
+            graphics.fillOval(scaledX , scaledY, INDENTFORPOINTS, INDENTFORPOINTS);
+            graphics.setColor((Color.WHITE));
             var font = new Font("Default", Font.CENTER_BASELINE, (int)fontSize);
             graphics.setFont(font);
             var description = String.format("(%s, %s)", point.x, point.y);
@@ -104,11 +111,12 @@ public class FunctionGraph extends Panel implements MouseWheelListener , MouseLi
         for (var sequence : functionsPerSequence) {
             var indexer = functionsPerSequence.indexOf(sequence);
             var from = pointsCorrespondingToSequence.get(indexer).get(0).getX();
-            var to = pointsCorrespondingToSequence.get(indexer).get(2).getX();
+            var to = pointsCorrespondingToSequence.get(indexer).get(1).getX();
+            var calc = new Calculations();
             for( var x = from; x <= to; x+= 0.01) {
-                var fullY = sequence.get(0) * Math.pow(x,2) + sequence.get(1) * x + sequence.get(2);
-                var yToPaint = (int) (Math.round(center.y + fullY) - (INDENTFORFUNCTION/2));
-                var xToPaint = (int) (Math.round(center.x + x) - (INDENTFORFUNCTION /2));
+                var yToPaint = (int)((center.y - (calc.yValue(sequence, x) * 100)));
+                var bla = calc.yValue(sequence, x);
+                var xToPaint = (int)(center.x + (x * 100));
                 graphics.drawOval(xToPaint, yToPaint, INDENTFORFUNCTION,INDENTFORFUNCTION);
             }
         }
@@ -207,4 +215,3 @@ public class FunctionGraph extends Panel implements MouseWheelListener , MouseLi
 
     }
 }
-

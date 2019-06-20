@@ -1,11 +1,11 @@
 /******************************************************************************
- *  Compilation:  javac de.karlsruhe.hhs.GaussianElimination.java
- *  Execution:    java de.karlsruhe.hhs.GaussianElimination m n
+ *  Compilation:  javac de.karlsruhe.hhs.Calculation.GaussianElimination.java
+ *  Execution:    java de.karlsruhe.hhs.Calculation.GaussianElimination m n
  *  Dependencies: StdOut.java
  *
  *  Gaussian elimination with partial pivoting for m-by-n system.
  *
- *  % java de.karlsruhe.hhs.GaussianElimination m n
+ *  % java de.karlsruhe.hhs.Calculation.GaussianElimination m n
  *  -1.000000
  *  2.000000
  *  2.000000
@@ -30,11 +30,11 @@
  *
  ******************************************************************************/
 
-package de.karlsruhe.hhs.GaussianElimination;
+package de.karlsruhe.hhs.Calculation.GaussianElimination;
 //package edu.princeton.cs.algs4;
 
 /**
- *  The {@code de.karlsruhe.hhs.GaussianElimination} data type provides methods
+ *  The {@code de.karlsruhe.hhs.Calculation.GaussianElimination} data type provides methods
  *  to solve a linear system of equations <em>Ax</em> = <em>b</em>,
  *  where <em>A</em> is an <em>m</em>-by-<em>n</em> matrix
  *  and <em>b</em> is a length <em>n</em> vector.
@@ -198,7 +198,7 @@ public class GaussianElimination {
 
 
     /**
-     * Unit tests the {@code de.karlsruhe.hhs.GaussianElimination} data type.
+     * Unit tests the {@code de.karlsruhe.hhs.Calculation.GaussianElimination} data type.
      */
     private static void test(String name, double[][] A, double[] b) {
         System.out.println("----------------------------------------------------");
@@ -222,11 +222,10 @@ public class GaussianElimination {
     // 3-by-3 nonsingular system
     private static void test1() {
         double[][] A = {
-                { 0, 1,  1 },
-                { 2, 4, -2 },
-                { 0, 3, 15 }
+                { 1, 1},
+                { 3, 1},
         };
-        double[] b = { 4, 2, 36 };
+        double[] b = { 3, 4 };
         test("test 1 (3-by-3 system, nonsingular)", A, b);
     }
 
@@ -325,7 +324,7 @@ public class GaussianElimination {
     }
 
     /**
-     * Unit tests the {@code de.karlsruhe.hhs.GaussianElimination} data type.
+     * Unit tests the {@code de.karlsruhe.hhs.Calculation.GaussianElimination} data type.
      *
      * @param args the command-line arguments
      */

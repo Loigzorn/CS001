@@ -1,12 +1,14 @@
 package de.karlsruhe.hhs.Library;
 
-import de.karlsruhe.hhs.GaussianElimination.GaussianElimination;
-import de.karlsruhe.hhs.Library.Helper.LGS;
+import de.karlsruhe.hhs.Calculation.Calculations;
+import de.karlsruhe.hhs.Calculation.GaussianElimination.GaussianElimination;
+import de.karlsruhe.hhs.Library.Helpers.LGS;
 import de.karlsruhe.hhs.Plotter.Plotter;
 import de.karlsruhe.hhs.Reader.Reader;
 
 import javax.swing.*;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,46 +39,57 @@ public class Program {
     }
 
     private void calculateFunctions() {
+        getGradientsFromUserInput();
+        var startGradient = Double.parseDouble(JOptionPane.showInputDialog("Input a start Gradient"));
+        var endGradient = Double.parseDouble(JOptionPane.showInputDialog("Input a end Gradient"));
         var lastIndexToIterateTo = determineLastIndexToIterateTo();
-        for (int i = 0; i < lastIndexToIterateTo; i = i + 3) {
+        var calc = new Calculations();
+        List<LinkedList<Double>> linearFunctions = new ArrayList<LinkedList<Double>>();
+        List<Double> gradients = new ArrayList<Double>();
+        List<Double> mediants = new ArrayList<Double>();
+        List<Double> activeGradients = new ArrayList<Double>();
+
+        for(int i = 0; i < lastIndexToIterateTo - 1; i = i + 1){
             var entries = getEntries(i);
-            var lgs = new LGS().calculateLGS(entries);
-            var elimination = new GaussianElimination(lgs.getValues(), lgs.getResults());
-            var parameterOfFunction = elimination.primal();
-            if(!elimination.isFeasible()) {
-                //TODO find alternative if two of the three points have the same x-value.
-                JOptionPane.showMessageDialog(null, (String.format(
-                        "Could not find a function to cover the range between %s and %s",
-                        entries.get(0).getX(), entries.get(2).getX()) +
-                        "\nFor the points: " +
-                        "(" + entries.get(0).getX() + "," + entries.get(0).getY()+ "); " +
-                        "(" + entries.get(1).getX() + "," + entries.get(1).getY()+ "); " +
-                        "(" + entries.get(2).getX() + "," + entries.get(2).getY()+ ")."));
-                continue;
-            }
+            var linearFunction = calc.calculateLinearFunction(entries);
+            linearFunctions.add(linearFunction);
+        }
+        if(lastIndexToIterateTo != sizeOfDataEntries){
+            var entries = getEntries(sizeOfDataEntries-2);
+            var linearFunction = calc.calculateLinearFunction(entries);
+            linearFunctions.add(linearFunction);
+        }
+
+        gradients.add(startGradient);
+        for(int i = 0; i < linearFunctions.size(); i++){
+            gradients.add(linearFunctions.get(i).get(1));
+        }
+        gradients.add(endGradient);
+
+        mediants.add(gradients.get(0));
+        for(int i = 0; i < gradients.size() - 1; i++){
+            mediants.add((gradients.get(i) + gradients.get(i + 1)) / 2);
+        }
+        mediants.remove(mediants.size() - 1);
+        mediants.remove(mediants.size() - 1);
+        mediants.add(endGradient);
+
+        for (int i = 0; i < lastIndexToIterateTo - 1; i = i + 1) {
+            activeGradients.add(mediants.get(0));
+            activeGradients.add(mediants.get(1));
+            mediants.remove(0);
+            var entries = getEntries(i);
+            var function = calc.calculateFunctionRounded(entries, activeGradients);
             pointsCorrespondingToSequence.add(entries);
-            var function = lgs.createFunction(parameterOfFunction);
             functionsPerSequence.add(function);
         }
 
         if (lastIndexToIterateTo != sizeOfDataEntries) {
-            var entries = getEntries(sizeOfDataEntries-3);
-
-            var lgs = new LGS().calculateLGS(entries);
-            var elimination = new GaussianElimination(lgs.getValues(), lgs.getResults());
-            if(!elimination.isFeasible()) {
-                JOptionPane.showMessageDialog(null, (String.format(
-                        "Could not find a function to cover the range between %s and %s",
-                        entries.get(0).getX(), entries.get(2).getX()) +
-                        "\nFor the points: " +
-                        "(" + entries.get(0).getX() + "," + entries.get(0).getY()+ "); " +
-                        "(" + entries.get(1).getX() + "," + entries.get(1).getY()+ "); " +
-                        "(" + entries.get(2).getX() + "," + entries.get(2).getY()+ ")."));
-                return;
-            }
-            var parameterOfFunction = elimination.primal();
+            activeGradients.add(mediants.get(0));
+            activeGradients.add(mediants.get(1));
+            var entries = getEntries(sizeOfDataEntries-2);
+            var function = calc.calculateFunctionRounded(entries, activeGradients);
             pointsCorrespondingToSequence.add(entries);
-            var function = lgs.createFunction(parameterOfFunction);
             functionsPerSequence.add(function);
         }
 
@@ -91,7 +104,7 @@ public class Program {
     }
 
     private LinkedList<Point2D> getEntries(int from) {
-        var to = from + 3;
+        var to = from + 2;
         if (to > sizeOfDataEntries) {
             to = sizeOfDataEntries;
         }
@@ -106,14 +119,10 @@ public class Program {
         if(sizeOfDataEntries == 0) {
             return sizeOfDataEntries;
         }
-        var isFactorOfThree_MinusOne = (sizeOfDataEntries - 1) % 3 == 0;
-        var isFactorOfThree_MinusTwo = (sizeOfDataEntries - 2) % 3 == 0;
+        var isFactorOfTwo_MinusOne = (sizeOfDataEntries - 1) % 2 == 0;
         var lastIndexToIterateTo = sizeOfDataEntries;
-        if (isFactorOfThree_MinusOne) {
+        if (isFactorOfTwo_MinusOne)
             lastIndexToIterateTo -= 1;
-        } else if (isFactorOfThree_MinusTwo) {
-            lastIndexToIterateTo -= 2;
-        }
         return lastIndexToIterateTo;
     }
 
